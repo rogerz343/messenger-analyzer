@@ -1,3 +1,9 @@
+/**
+ * Extracts some information (e.g. number of messages, word frequencies, number
+ * of reacts, etc.) from the given messenger conversation. Saves the results
+ * as .json files.
+ */
+
 // Put path to chat log here
 const MESSAGE_PATH = "./messages/nas1hope_dbd429fcd8/message.json"
 // Give a name for the output folder of this chat log
@@ -5,7 +11,6 @@ const OUTPUT_DIR_NAME = "na_hope";
 
 // load chat logs
 let message_obj = require(MESSAGE_PATH);
-let participants = message_obj.participants;
 let messages = message_obj.messages;
 
 // reacts (as of 2018)
@@ -107,7 +112,7 @@ let fs = require("fs");
 let output_dir = "./" + OUTPUT_DIR_NAME;
 if (!fs.existsSync(output_dir)) { fs.mkdirSync(output_dir); }
 
-/* Saves the data for the person with name [name] to a directory ./[name] */
+/* Saves the data for the person with name [name] to a file in the output directory */
 function save_data(name) {
     // word frequency map
     let entries = [];
@@ -127,4 +132,27 @@ function save_data(name) {
     // 
 }
 
-save_data("Kyle Xiao");
+/* Saves the aggregate date from the chat to various in the output directory */
+function save_data() {
+    // global (not person-specific) stats file
+    let global_data_obj = {
+        "words": global_words,
+        "reacts": global_reacts,
+        "num_msgs": global_num_msgs,
+        "num_chars": global_num_chars,
+        "num_words": global_num_words,
+        "timestamps": global_timestamps,
+    }
+
+    let global_data_file = output_dir + "/data.json";
+    fs.writeFile(global_data_file, JSON.stringify(global_data_obj, null, 4));
+
+    // person-specific data
+    for (let person in ppl_data) {
+        let person_data_file = output_dir + "/" + person + "_data.json";
+        fs.writeFile(person_data_file, JSON.stringify(ppl_data[person], null, 4));
+    }
+    
+}
+
+save_data();
